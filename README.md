@@ -76,7 +76,7 @@ Sistem memiliki 6 entitas/tabel utama:
 ![ERD](./erd.png)
 
 ## Class Diagram
-![Class Diagram](./class diagram.png)
+![Class Diagram](./class_diagram.png)
 
 ## API Endpoints
 Secara garis besar, terdapat lebih dari 23 endpoint dari 4 *resource* utama dan 1 monitoring dashboard (GET, POST, PUT, DELETE).
