@@ -82,4 +82,4 @@ Sistem memiliki 6 entitas/tabel utama:
 Secara garis besar, terdapat lebih dari 23 endpoint dari 4 *resource* utama dan 1 monitoring dashboard (GET, POST, PUT, DELETE).
 
 ---
-*Dibuat untuk keperluan UTS Praktikum PBO / OOP (21 April 2026).*
+*Dibuat untuk keperluan Tugas Akhir Praktikum PBO / OOP (2026).*
