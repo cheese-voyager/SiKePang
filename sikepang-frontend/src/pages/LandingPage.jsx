@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Leaf, Menu, X, ChevronRight, Users, Package, Warehouse, Truck,
@@ -55,7 +56,7 @@ const howItWorks = [
 
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } };
 
-export default function LandingPage({ onEnterDashboard }) {
+export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -135,9 +136,9 @@ export default function LandingPage({ onEnterDashboard }) {
               SiKePang membantu mengelola data petani, komoditas, stok pangan, dan distribusi secara digital — menggantikan pencatatan manual yang rentan kesalahan.
             </p>
             <div className="flex flex-wrap gap-4">
-              <button onClick={onEnterDashboard} className="btn-primary flex items-center gap-2 text-base">
+              <Link to="/login" className="btn-primary flex items-center gap-2 text-base">
                 Masuk Dashboard <ArrowRight size={18} />
-              </button>
+              </Link>
               <button onClick={() => scrollTo('fitur')} className="btn-secondary flex items-center gap-2 text-base">
                 Lihat Fitur
               </button>
@@ -293,9 +294,9 @@ export default function LandingPage({ onEnterDashboard }) {
             <Leaf size={40} className="text-plantation-400 mx-auto mb-6" />
             <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">Siap Mendigitalkan Pertanian Anda?</h2>
             <p className="text-plantation-300 text-lg mb-8 max-w-xl mx-auto">Mulai kelola data pangan komunitas Anda secara efisien dengan SiKePang hari ini.</p>
-            <button onClick={onEnterDashboard} className="bg-white text-plantation-800 px-8 py-4 rounded-xl font-bold text-base hover:bg-plantation-100 transition-colors shadow-lg inline-flex items-center gap-2">
-              Masuk ke Dashboard <ArrowRight size={18} />
-            </button>
+            <Link to="/register" className="bg-white text-plantation-800 px-8 py-4 rounded-xl font-bold text-base hover:bg-plantation-100 transition-colors shadow-lg inline-flex items-center gap-2">
+              Daftar Sekarang <ArrowRight size={18} />
+            </Link>
           </motion.div>
         </div>
       </section>

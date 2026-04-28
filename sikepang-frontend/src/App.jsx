@@ -1,22 +1,18 @@
 import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import LandingPage from './pages/LandingPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import PetaniPage from './pages/PetaniPage';
 import KomoditasPage from './pages/KomoditasPage';
 import StokPage from './pages/StokPage';
 import DistribusiPage from './pages/DistribusiPage';
 
-function App() {
-  const [view, setView] = useState('landing'); // 'landing' or 'dashboard'
+function DashboardLayout() {
   const [activePage, setActivePage] = useState('dashboard');
 
-  // If user is on the landing page, show it
-  if (view === 'landing') {
-    return <LandingPage onEnterDashboard={() => setView('dashboard')} />;
-  }
-
-  // Otherwise show dashboard layout
   const renderPage = () => {
     switch (activePage) {
       case 'dashboard': return <DashboardPage />;
@@ -42,6 +38,20 @@ function App() {
         </div>
       </main>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/dashboard" element={<DashboardLayout />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
