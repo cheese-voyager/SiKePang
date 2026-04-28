@@ -4,6 +4,7 @@ import {
   LayoutDashboard, Users, Package, Warehouse, Truck,
   Menu, X, ChevronDown, LogOut, Bell, Leaf, Sun, Moon
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -118,7 +119,9 @@ export default function Sidebar({ activePage, onNavigate }) {
                   <p className="text-sm font-semibold text-white truncate">Admin Utama</p>
                   <p className="text-[11px] text-plantation-300 truncate">admin@sikepang.id</p>
                 </div>
-                <LogOut size={16} className="text-plantation-400 hover:text-white cursor-pointer transition-colors" />
+                <Link to="/" className="text-plantation-700 font-semibold hover:text-plantation-900 underline-offset-4 hover:underline">
+                  <LogOut size={16} className="text-plantation-400 hover:text-white cursor-pointer transition-colors" to="/" />
+                </Link>
               </div>
             </div>
           </motion.aside>

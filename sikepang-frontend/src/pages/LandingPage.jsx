@@ -19,10 +19,10 @@ const navLinksRight = [
 ];
 
 const teamMembers = [
-  { nim: '152024032', nama: 'Zakhwa Aliya', role: 'Project Manager' },
-  { nim: '152024035', nama: 'Putri Yudi Patrecia', role: 'Backend Developer' },
+  { nim: '152024032', nama: 'Zakhwa Aliya', role: 'Backend Developer' },
+  { nim: '152024035', nama: 'Putri Yudi Patrecia', role: 'Frontend Developer' },
   { nim: '152024047', nama: 'Zeta Mardhotillah R.', role: 'Frontend Developer' },
-  { nim: '152024127', nama: 'Dzakiyya Puteri Aulia', role: 'Database Engineer' },
+  { nim: '152024127', nama: 'Dzakiyya Puteri Aulia', role: 'Frontend Developer' },
 ];
 
 const features = [
