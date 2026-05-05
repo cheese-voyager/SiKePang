@@ -14,7 +14,13 @@ export default function LoginPage() {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      navigate('/dashboard');
+      // Simulasi role check
+      const email = form.email.toLowerCase();
+      if (email.includes('petani') || email.includes('budi') || email.includes('siti') || email.includes('ahmad')) {
+        navigate('/petani');
+      } else {
+        navigate('/dashboard');
+      }
     }, 1200);
   };
 
@@ -102,6 +108,9 @@ export default function LoginPage() {
                 <>Masuk <ArrowRight size={18} /></>
               )}
             </button>
+            <p className="text-xs text-plantation-500 text-center mt-2">
+              *Gunakan email <span className="font-semibold text-plantation-700">budi@gmail.com</span> untuk masuk sebagai Petani.
+            </p>
           </form>
 
           <p className="text-center text-sm text-plantation-500 mt-6">

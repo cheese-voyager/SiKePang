@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
+// Layout Components
 import Sidebar from './components/Sidebar';
+import PetaniSidebar from './components/PetaniSidebar';
+
+// Pages
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -9,6 +14,11 @@ import PetaniPage from './pages/PetaniPage';
 import KomoditasPage from './pages/KomoditasPage';
 import StokPage from './pages/StokPage';
 import DistribusiPage from './pages/DistribusiPage';
+
+// Petani Pages
+import PetaniDashboardPage from './pages/PetaniDashboardPage';
+import PetaniStokPage from './pages/PetaniStokPage';
+import PetaniDistribusiPage from './pages/PetaniDistribusiPage';
 
 function DashboardLayout() {
   const [activePage, setActivePage] = useState('dashboard');
@@ -41,6 +51,35 @@ function DashboardLayout() {
   );
 }
 
+function PetaniLayout() {
+  const [activePage, setActivePage] = useState('dashboard');
+
+  const renderPage = () => {
+    switch (activePage) {
+      case 'dashboard': return <PetaniDashboardPage />;
+      case 'stok': return <PetaniStokPage />;
+      case 'distribusi': return <PetaniDistribusiPage />;
+      default: return <PetaniDashboardPage />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-plantation-50 via-white to-leaf-50">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-plantation-200/20 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 -left-20 w-60 h-60 bg-leaf-200/15 rounded-full blur-3xl" />
+        <div className="absolute -bottom-20 right-1/3 w-72 h-72 bg-plantation-100/20 rounded-full blur-3xl" />
+      </div>
+      <PetaniSidebar activePage={activePage} onNavigate={setActivePage} />
+      <main className="lg:ml-[280px] min-h-screen relative">
+        <div className="p-4 md:p-6 lg:p-8 pt-16 lg:pt-8">
+          {renderPage()}
+        </div>
+      </main>
+    </div>
+  );
+}
+
 function App() {
   return (
     <BrowserRouter>
@@ -49,6 +88,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<DashboardLayout />} />
+        <Route path="/petani" element={<PetaniLayout />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
