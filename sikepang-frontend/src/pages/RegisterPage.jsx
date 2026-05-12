@@ -6,7 +6,6 @@ import { Leaf, Mail, Lock, Eye, EyeOff, User, Phone, ArrowRight, CheckCircle2 } 
 const roles = [
   { value: 'petani', label: 'Petani', desc: 'Akses data lahan dan hasil panen' },
   { value: 'petugas', label: 'Petugas Lapangan', desc: 'Kelola stok dan distribusi' },
-  { value: 'admin', label: 'Administrator', desc: 'Akses penuh ke seluruh sistem' },
 ];
 
 export default function RegisterPage() {
@@ -105,7 +104,7 @@ export default function RegisterPage() {
             {/* Role Selection */}
             <div>
               <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Peran</label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {roles.map(r => (
                   <button type="button" key={r.value} onClick={() => set('role', r.value)}
                     className={`p-3 rounded-xl border-2 text-left transition-all duration-200 ${
