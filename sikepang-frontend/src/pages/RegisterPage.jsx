@@ -3,28 +3,53 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Leaf, Mail, Lock, Eye, EyeOff, User, Phone, ArrowRight, CheckCircle2 } from 'lucide-react';
 
-const roles = [
-  { value: 'petani', label: 'Petani', desc: 'Akses data lahan dan hasil panen' },
-  { value: 'petugas', label: 'Petugas Lapangan', desc: 'Kelola stok dan distribusi' },
-];
+
 
 export default function RegisterPage() {
   const navigate = useNavigate();
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ nama: '', email: '', phone: '', password: '', confirmPassword: '', role: 'petani' });
+  const [form, setForm] = useState({ nama: '', email: '', phone: '', password: '', confirmPassword: '', secretKey: '' });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (form.password !== form.confirmPassword) {
       alert('Password tidak cocok!');
       return;
     }
     setLoading(true);
-    setTimeout(() => {
+    
+    try {
+      // Panggil API Backend Spring Boot
+      const response = await fetch('http://127.0.0.1:8081/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nama: form.nama,
+          email: form.email,
+          password: form.password,
+          phone: form.phone,
+          secretKey: form.secretKey,
+          kelompokTani: '-', // Default kosong
+          alamat: '-'        // Default kosong
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        alert('Pendaftaran berhasil! Silakan login.');
+        navigate('/login');
+      } else {
+        alert('Pendaftaran gagal: ' + data.message);
+      }
+    } catch (error) {
+      alert('Gagal menghubungi server. Pastikan backend sudah menyala.');
+    } finally {
       setLoading(false);
-      navigate('/login');
-    }, 1200);
+    }
   };
 
   const set = (key, val) => setForm({ ...form, [key]: val });
@@ -101,22 +126,15 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Role Selection */}
+            {/* Secret Key for Role */}
             <div>
-              <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Peran</label>
-              <div className="grid grid-cols-2 gap-2">
-                {roles.map(r => (
-                  <button type="button" key={r.value} onClick={() => set('role', r.value)}
-                    className={`p-3 rounded-xl border-2 text-left transition-all duration-200 ${
-                      form.role === r.value
-                        ? 'border-plantation-500 bg-plantation-50 ring-2 ring-plantation-500/20'
-                        : 'border-plantation-200 hover:border-plantation-300 bg-white'
-                    }`}>
-                    <p className={`text-sm font-bold ${form.role === r.value ? 'text-plantation-700' : 'text-plantation-900'}`}>{r.label}</p>
-                    <p className="text-[10px] text-plantation-500 mt-0.5 leading-tight">{r.desc}</p>
-                  </button>
-                ))}
+              <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Kode Rahasia Peran (Opsional)</label>
+              <div className="relative">
+                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-plantation-400" />
+                <input type="text" placeholder="Kosongkan jika mendaftar sebagai Petani" value={form.secretKey}
+                  onChange={e => set('secretKey', e.target.value)} className="input-field pl-11" />
               </div>
+              <p className="text-xs text-plantation-500 mt-1">Masukkan kode rahasia jika Anda mendaftar sebagai Admin atau Petugas.</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

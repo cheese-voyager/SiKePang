@@ -1,3 +1,20 @@
+node_modules
+# Aplikasi
+*.jar
+
+# Database
+*.sql
+
+# Dokumen
+*.pdf
+*.docx
+
+# Gambar
+*.png
+*.jpg
+*.jpeg
+
+# Bantuan
 HELP.md
 .gradle
 build/
@@ -25,6 +42,8 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+*.pdf
+*.docx
 
 ### NetBeans ###
 /nbproject/private/
