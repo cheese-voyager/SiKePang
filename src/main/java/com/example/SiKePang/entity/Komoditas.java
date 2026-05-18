@@ -15,9 +15,12 @@ public class Komoditas {
     @Column(nullable = false)
     private String nama;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String kategori;
 
     @Column(nullable = false)
     private String satuan;
+
+    @Column(nullable = true)
+    private Double harga;
 }

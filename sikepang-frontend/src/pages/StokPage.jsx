@@ -171,7 +171,7 @@ export default function StokPage() {
             <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Komoditas</label>
             <select className="select-field" value={formData.idKomoditas} onChange={(e) => setFormData({ ...formData, idKomoditas: e.target.value })} required>
               <option value="">Pilih komoditas</option>
-              {komoditasList.map(k => <option key={k.idKomoditas} value={k.idKomoditas}>{k.namaKomoditas}</option>)}
+              {komoditasList.map(k => <option key={k.id} value={k.id}>{k.nama}</option>)}
             </select>
           </div>
           <div className="grid grid-cols-2 gap-4">

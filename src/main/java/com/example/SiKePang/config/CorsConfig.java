@@ -16,7 +16,12 @@ public class CorsConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // Izinkan request dari origin manapun (berguna untuk testing lokal via IP, 127.0.0.1, dll)
+        // mengizinkan ngrok
+        config.setAllowedOrigins(Arrays.asList(
+                "https://5605-2404-8000-1024-4b21-7b21-bbe0-3e8c-715f.ngrok-free.app"));
+
+        // Izinkan request dari origin manapun (berguna untuk testing lokal via IP,
+        // 127.0.0.1, dll)
         config.setAllowedOriginPatterns(Arrays.asList("*"));
 
         // HTTP method yang diperbolehkan
@@ -28,8 +33,7 @@ public class CorsConfig {
                 "Content-Type",
                 "Accept",
                 "X-Requested-With",
-                "X-User-Id"
-        ));
+                "X-User-Id"));
 
         // Izinkan cookies / credentials (jika pakai session atau JWT di cookie)
         config.setAllowCredentials(true);

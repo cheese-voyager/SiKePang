@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Eye, Trash2, Truck, MapPin, Calendar, MessageSquare, Edit } from 'lucide-react';
+import { Plus, Eye, Trash2, Truck, MapPin, Calendar, Package } from 'lucide-react';
 import Header from '../components/Header';
 import DataTable from '../components/DataTable';
 import Modal from '../components/Modal';
 import { getDistribusi, createDistribusi, deleteDistribusi, updateDistribusiStatus } from '../services/distribusiService';
 import { getPetani } from '../services/petaniService';
+import { getKomoditas } from '../services/komoditasService';
 
 const statusColors = {
   'SELESAI': 'badge-success',
@@ -19,25 +20,28 @@ export default function DistribusiPage() {
   const [list, setList] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [petaniList, setPetaniList] = useState([]);
+  const [komoditasList, setKomoditasList] = useState([]);
   
   const [modalOpen, setModalOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedDist, setSelectedDist] = useState(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
-    petaniId: '', tujuan: '', status: 'MENUNGGU', catatan: ''
+    petaniId: '', tujuan: '', komoditasId: '', jumlah: ''
   });
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [distData, pList] = await Promise.all([
+      const [distData, pList, kList] = await Promise.all([
         getDistribusi(),
-        getPetani()
+        getPetani(),
+        getKomoditas()
       ]);
       setList(distData || []);
       setFiltered(distData || []);
       setPetaniList(pList || []);
+      setKomoditasList(kList || []);
     } catch (error) {
       console.error("Failed to load distribusi data:", error);
     } finally {
@@ -61,15 +65,20 @@ export default function DistribusiPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await createDistribusi({
+      const payload = {
         petaniId: parseInt(formData.petaniId),
         tujuan: formData.tujuan,
-        status: formData.status,
-        catatan: formData.catatan
-      });
+        detailDistribusi: [
+          {
+            komoditasId: parseInt(formData.komoditasId),
+            jumlah: parseFloat(formData.jumlah)
+          }
+        ]
+      };
+      await createDistribusi(payload);
       await fetchData();
       setModalOpen(false);
-      setFormData({ petaniId: '', tujuan: '', status: 'MENUNGGU', catatan: '' });
+      setFormData({ petaniId: '', tujuan: '', komoditasId: '', jumlah: '' });
     } catch (error) {
       console.error("Failed to save distribusi:", error);
       alert("Gagal menyimpan distribusi");
@@ -115,7 +124,7 @@ export default function DistribusiPage() {
             <MapPin size={13} className="text-plantation-400" />{row.tujuan}
           </p>
           <p className="text-xs text-plantation-500 mt-0.5 flex items-center gap-1">
-            <MessageSquare size={11} /> {row.catatan || '-'}
+            <Package size={11} /> {row.detailDistribusi?.length || 0} Jenis Komoditas
           </p>
         </div>
       ),
@@ -128,7 +137,7 @@ export default function DistribusiPage() {
       header: 'Tanggal',
       render: (row) => (
         <span className="text-plantation-600 flex items-center gap-1">
-          <Calendar size={13} className="text-plantation-400" />{new Date(row.tanggalDistribusi).toLocaleDateString('id-ID')}
+          <Calendar size={13} className="text-plantation-400" />{row.tanggalDistribusi ? new Date(row.tanggalDistribusi).toLocaleDateString('id-ID') : '-'}
         </span>
       ),
     },
@@ -140,7 +149,7 @@ export default function DistribusiPage() {
           value={row.status}
           onChange={(e) => handleUpdateStatus(row.id, e.target.value)}
         >
-          <option value="MENUNGGU">MENUNGGU</option>
+          <option value="PENDING">PENDING</option>
           <option value="DIPROSES">DIPROSES</option>
           <option value="DIKIRIM">DIKIRIM</option>
           <option value="SELESAI">SELESAI</option>
@@ -169,7 +178,7 @@ export default function DistribusiPage() {
 
       {/* Status Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        {['MENUNGGU', 'DIPROSES', 'DIKIRIM', 'SELESAI'].map(status => {
+        {['PENDING', 'DIPROSES', 'DIKIRIM', 'SELESAI'].map(status => {
           const count = list.filter(d => d.status === status).length;
           return (
             <div key={status} className="glass-card-light p-4 text-center">
@@ -192,7 +201,7 @@ export default function DistribusiPage() {
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Buat Distribusi Baru">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Petani</label>
+            <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Petani Pengirim</label>
             <select className="select-field" value={formData.petaniId} onChange={(e) => setFormData({ ...formData, petaniId: e.target.value })} required>
               <option value="">Pilih petani</option>
               {petaniList.map(p => <option key={p.id} value={p.id}>{p.nama}</option>)}
@@ -202,19 +211,23 @@ export default function DistribusiPage() {
             <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Tujuan Distribusi</label>
             <input type="text" className="input-field" placeholder="Tujuan pengiriman" value={formData.tujuan} onChange={(e) => setFormData({ ...formData, tujuan: e.target.value })} required />
           </div>
-          <div>
-            <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Status</label>
-            <select className="select-field" value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })}>
-              <option value="MENUNGGU">Menunggu</option>
-              <option value="DIPROSES">Diproses</option>
-              <option value="DIKIRIM">Dikirim</option>
-              <option value="SELESAI">Selesai</option>
-            </select>
+          
+          {/* Detail Komoditas Input */}
+          <div className="p-3 bg-plantation-50 rounded-xl space-y-3">
+            <h4 className="text-xs font-bold text-plantation-800 uppercase tracking-wide">Pilih Komoditas</h4>
+            <div>
+              <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Komoditas</label>
+              <select className="select-field bg-white" value={formData.komoditasId} onChange={(e) => setFormData({ ...formData, komoditasId: e.target.value })} required>
+                <option value="">Pilih komoditas</option>
+                {komoditasList.map(k => <option key={k.id} value={k.id}>{k.nama} ({k.satuan})</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Jumlah</label>
+              <input type="number" step="0.1" min="0.1" className="input-field bg-white" placeholder="Contoh: 100" value={formData.jumlah} onChange={(e) => setFormData({ ...formData, jumlah: e.target.value })} required />
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Catatan</label>
-            <input type="text" className="input-field" placeholder="Catatan tambahan" value={formData.catatan} onChange={(e) => setFormData({ ...formData, catatan: e.target.value })} />
-          </div>
+
           <div className="flex gap-3 pt-2">
             <button type="submit" className="btn-primary flex-1">Simpan</button>
             <button type="button" onClick={() => setModalOpen(false)} className="btn-outline flex-1">Batal</button>
@@ -237,7 +250,7 @@ export default function DistribusiPage() {
               </div>
               <div>
                 <p className="text-xs text-plantation-500">Tanggal</p>
-                <p className="font-semibold text-plantation-900">{new Date(selectedDist.tanggalDistribusi).toLocaleDateString('id-ID')}</p>
+                <p className="font-semibold text-plantation-900">{selectedDist.tanggalDistribusi ? new Date(selectedDist.tanggalDistribusi).toLocaleDateString('id-ID') : '-'}</p>
               </div>
               <div>
                 <p className="text-xs text-plantation-500 mb-1">Status</p>
@@ -246,17 +259,43 @@ export default function DistribusiPage() {
                   value={selectedDist.status}
                   onChange={(e) => handleUpdateStatus(selectedDist.id, e.target.value)}
                 >
-                  <option value="MENUNGGU">MENUNGGU</option>
+                  <option value="PENDING">PENDING</option>
                   <option value="DIPROSES">DIPROSES</option>
                   <option value="DIKIRIM">DIKIRIM</option>
                   <option value="SELESAI">SELESAI</option>
                 </select>
               </div>
             </div>
-            <div>
-              <p className="text-xs text-plantation-500 mb-1">Catatan</p>
-              <p className="text-sm text-plantation-700 bg-plantation-50 p-3 rounded-xl">{selectedDist.catatan || '-'}</p>
+            
+            {/* Rincian Komoditas */}
+            <div className="mt-4 border-t border-plantation-100 pt-4">
+              <p className="text-xs font-bold text-plantation-800 uppercase tracking-wide mb-2">Daftar Komoditas Dikirim</p>
+              <div className="bg-plantation-50 rounded-xl overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-plantation-100 text-plantation-700">
+                    <tr>
+                      <th className="px-4 py-2 text-left font-semibold">Komoditas</th>
+                      <th className="px-4 py-2 text-right font-semibold">Jumlah</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedDist.detailDistribusi && selectedDist.detailDistribusi.length > 0 ? (
+                      selectedDist.detailDistribusi.map((item, i) => (
+                        <tr key={i} className="border-b border-plantation-100/50 last:border-0">
+                          <td className="px-4 py-2 font-medium text-plantation-900">{item.namaKomoditas}</td>
+                          <td className="px-4 py-2 text-right text-plantation-700">{item.jumlah} {item.satuan}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="2" className="px-4 py-3 text-center text-plantation-500 text-xs">Tidak ada detail komoditas.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
+
           </div>
         )}
       </Modal>

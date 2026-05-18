@@ -119,6 +119,7 @@ export default function PetaniSidebar({ activePage, onNavigate }) {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-white truncate">{user?.nama || 'Petani'}</p>
                   <p className="text-[11px] text-plantation-300 truncate">{user?.email || ''}</p>
+                  <p className="text-[10px] text-leaf-400 font-bold tracking-wide uppercase mt-0.5">{user?.role || ''}</p>
                 </div>
                 <button
                   onClick={async () => { await handleLogout(); navigate('/login', { replace: true }); }}

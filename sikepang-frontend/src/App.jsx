@@ -13,7 +13,7 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
-import PetaniPage from './pages/PetaniPage';
+import PenggunaPage from './pages/PenggunaPage';
 import KomoditasPage from './pages/KomoditasPage';
 import StokPage from './pages/StokPage';
 import DistribusiPage from './pages/DistribusiPage';
@@ -29,7 +29,7 @@ function DashboardLayout() {
   const renderPage = () => {
     switch (activePage) {
       case 'dashboard': return <DashboardPage />;
-      case 'petani': return <PetaniPage />;
+      case 'pengguna': return <PenggunaPage />;
       case 'komoditas': return <KomoditasPage />;
       case 'stok': return <StokPage />;
       case 'distribusi': return <DistribusiPage />;

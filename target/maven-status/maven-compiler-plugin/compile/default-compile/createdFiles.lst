@@ -19,6 +19,7 @@ com/example/SiKePang/HomeController.class
 com/example/SiKePang/repository/AdminRepository.class
 com/example/SiKePang/controller/HargaPasarController$HargaPasarRequest.class
 com/example/SiKePang/entity/Petugas.class
+com/example/SiKePang/dto/response/PenggunaResponse.class
 com/example/SiKePang/service/impl/KomoditasServiceImpl.class
 com/example/SiKePang/repository/HargaPasarRepository.class
 com/example/SiKePang/dto/response/HargaPasarResponse.class
@@ -42,9 +43,11 @@ com/example/SiKePang/repository/PetaniRepository.class
 com/example/SiKePang/dto/response/DashboardStatsResponse.class
 com/example/SiKePang/controller/HargaPasarController.class
 com/example/SiKePang/repository/PetugasRepository.class
+com/example/SiKePang/controller/PenggunaController.class
 com/example/SiKePang/entity/Admin.class
 com/example/SiKePang/controller/StokPanganController.class
 com/example/SiKePang/controller/KomoditasController.class
+com/example/SiKePang/service/impl/PenggunaServiceImpl.class
 com/example/SiKePang/exception/GlobalExceptionHandler.class
 com/example/SiKePang/seeder/DataSeeder.class
 com/example/SiKePang/service/impl/DashboardServiceImpl.class
@@ -54,11 +57,13 @@ com/example/SiKePang/service/DistribusiService.class
 com/example/SiKePang/dto/request/StokPanganRequest.class
 com/example/SiKePang/dto/response/LoginResponse.class
 com/example/SiKePang/service/KomoditasService.class
+com/example/SiKePang/service/PenggunaService.class
 com/example/SiKePang/controller/DistribusiController.class
 com/example/SiKePang/dto/response/DistribusiPerBulanResponse.class
 com/example/SiKePang/repository/KomoditasRepository.class
 com/example/SiKePang/service/impl/AuthServiceImpl.class
 com/example/SiKePang/service/impl/DistribusiServiceImpl.class
 com/example/SiKePang/entity/BasePengguna.class
+com/example/SiKePang/dto/request/PenggunaRequest.class
 com/example/SiKePang/dto/request/RegisterRequest.class
 com/example/SiKePang/entity/DistribusiKomoditas.class

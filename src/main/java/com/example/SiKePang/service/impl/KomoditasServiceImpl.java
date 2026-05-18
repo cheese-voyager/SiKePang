@@ -39,6 +39,7 @@ public class KomoditasServiceImpl implements KomoditasService {
         komoditas.setNama(request.getNama());
         komoditas.setKategori(request.getKategori());
         komoditas.setSatuan(request.getSatuan());
+        komoditas.setHarga(request.getHarga());
         return komoditasRepository.save(komoditas);
     }
 

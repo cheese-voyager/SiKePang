@@ -5,7 +5,7 @@
 // otomatis di-attach dan error 401 otomatis di-handle.
 // =============================================================
 
-const API_BASE_URL = 'http://127.0.0.1:8081/api';
+const API_BASE_URL = '/api';
 
 /**
  * Helper: ambil access token dari localStorage

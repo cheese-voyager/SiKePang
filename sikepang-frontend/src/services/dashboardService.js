@@ -19,7 +19,9 @@ export const getDistribusiPerBulan = async () => {
 };
 
 export const getHargaPasar = async () => {
-  const res = await apiFetch('/harga-pasar');
+  const res = await apiFetch('/komoditas');
   const data = await res.json();
-  return data.data;
+  // Filter only commodities that have harga set by Petugas
+  const komoditasWithHarga = (data.data || []).filter(k => k.harga !== null && k.harga !== undefined);
+  return komoditasWithHarga;
 };

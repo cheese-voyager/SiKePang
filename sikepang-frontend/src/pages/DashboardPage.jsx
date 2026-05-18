@@ -145,11 +145,6 @@ export default function DashboardPage() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {hargaPasar.length > 0 ? hargaPasar.map((item, i) => {
-            const isUp = item.perubahan > 0;
-            const isDown = item.perubahan < 0;
-            const TrendIcon = isUp ? TrendingUp : isDown ? TrendingDown : Minus;
-            const trendColor = isUp ? 'text-red-500' : isDown ? 'text-green-500' : 'text-plantation-400';
-            const trendBg = isUp ? 'bg-red-50' : isDown ? 'bg-green-50' : 'bg-plantation-50';
             return (
               <motion.div
                 key={item.nama}
@@ -160,18 +155,19 @@ export default function DashboardPage() {
               >
                 <div className="flex items-start justify-between mb-2">
                   <p className="text-sm font-semibold text-plantation-800 leading-tight">{item.nama}</p>
-                  <span className={`inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${trendBg} ${trendColor}`}>
-                    <TrendIcon size={10} />
-                    {item.perubahan !== 0 ? `${Math.abs(item.perubahan)}%` : 'Stabil'}
+                  <span className={`inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-plantation-50 text-plantation-400`}>
+                    <Minus size={10} /> Stabil
                   </span>
                 </div>
                 <p className="text-xl font-extrabold text-plantation-900">
                   Rp{item.harga.toLocaleString('id-ID')}
-                  <span className="text-xs font-normal text-plantation-400 ml-0.5">{item.satuanHarga}</span>
+                  <span className="text-xs font-normal text-plantation-400 ml-0.5">/{item.satuan}</span>
                 </p>
-                <span className="inline-block mt-2 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-plantation-100 text-plantation-600">
-                  {item.kategori}
-                </span>
+                {item.kategori && (
+                  <span className="inline-block mt-2 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-plantation-100 text-plantation-600">
+                    {item.kategori}
+                  </span>
+                )}
               </motion.div>
             );
           }) : (

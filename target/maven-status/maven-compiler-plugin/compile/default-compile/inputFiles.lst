@@ -31,6 +31,7 @@
 /home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/service/impl/AuthServiceImpl.java
 /home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/entity/Distribusi.java
 /home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/controller/DistribusiController.java
+/home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/service/impl/PenggunaServiceImpl.java
 /home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/dto/response/ApiResponse.java
 /home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/repository/KomoditasRepository.java
 /home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/repository/PetaniRepository.java
@@ -42,6 +43,7 @@
 /home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/entity/Petani.java
 /home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/SiKePangApplication.java
 /home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/HomeController.java
+/home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/controller/PenggunaController.java
 /home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/service/PetaniService.java
 /home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/service/impl/DistribusiServiceImpl.java
 /home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/dto/request/UpdateStatusRequest.java
@@ -50,7 +52,10 @@
 /home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/dto/response/StokPanganResponse.java
 /home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/repository/StokPanganRepository.java
 /home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/dto/response/LoginResponse.java
+/home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/dto/request/PenggunaRequest.java
 /home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/service/DashboardService.java
+/home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/service/PenggunaService.java
+/home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/dto/response/PenggunaResponse.java
 /home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/dto/request/PetaniRequest.java
 /home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/entity/Komoditas.java
 /home/kizzu/Kuliah/pbo/SiKePang/src/main/java/com/example/SiKePang/dto/response/DashboardStatsResponse.java

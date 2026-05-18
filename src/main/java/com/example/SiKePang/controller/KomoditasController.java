@@ -41,8 +41,10 @@ public class KomoditasController {
     public ResponseEntity<ApiResponse<KomoditasResponse>> create(@Valid @RequestBody KomoditasRequest request) {
         Komoditas komoditas = new Komoditas();
         komoditas.setNama(request.getNama());
+        // Kategori and harga might be null from Admin
         komoditas.setKategori(request.getKategori());
         komoditas.setSatuan(request.getSatuan());
+        komoditas.setHarga(request.getHarga());
 
         KomoditasResponse data = KomoditasResponse.fromEntity(komoditasService.create(komoditas));
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -57,6 +59,7 @@ public class KomoditasController {
         komoditas.setNama(request.getNama());
         komoditas.setKategori(request.getKategori());
         komoditas.setSatuan(request.getSatuan());
+        komoditas.setHarga(request.getHarga());
 
         KomoditasResponse data = KomoditasResponse.fromEntity(komoditasService.update(id, komoditas));
         return ResponseEntity.ok(ApiResponse.success("Data komoditas berhasil diupdate", data));

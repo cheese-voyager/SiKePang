@@ -9,7 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'petani', label: 'Data Petani', icon: Users },
+  { id: 'pengguna', label: 'Data Pengguna', icon: Users },
   { id: 'komoditas', label: 'Komoditas', icon: Package },
   { id: 'stok', label: 'Stok Pangan', icon: Warehouse },
   { id: 'distribusi', label: 'Distribusi', icon: Truck },
@@ -121,6 +121,7 @@ export default function Sidebar({ activePage, onNavigate }) {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-white truncate">{user?.nama || 'Pengguna'}</p>
                   <p className="text-[11px] text-plantation-300 truncate">{user?.email || ''}</p>
+                  <p className="text-[10px] text-leaf-400 font-bold tracking-wide uppercase mt-0.5">{user?.role || ''}</p>
                 </div>
                 <button
                   onClick={async () => { await handleLogout(); navigate('/login', { replace: true }); }}

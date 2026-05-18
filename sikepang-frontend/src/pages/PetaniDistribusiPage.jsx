@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Eye, Truck, MapPin, Calendar, MessageSquare } from 'lucide-react';
+import { Eye, Truck, MapPin, Calendar, Package } from 'lucide-react';
 import Header from '../components/Header';
 import DataTable from '../components/DataTable';
 import Modal from '../components/Modal';
@@ -28,8 +28,7 @@ export default function PetaniDistribusiPage() {
     try {
       setLoading(true);
       const data = await getDistribusi();
-      // Filter distributions matching the user's id (since the backend doesn't have getDistribusiByPetani yet, we filter here)
-      // Ideally, there should be an endpoint, but this works for now.
+      // Filter distributions matching the user's name
       const myDist = (data || []).filter(d => d.namaPetani === user.nama); 
       setList(myDist);
       setFiltered(myDist);
@@ -66,7 +65,7 @@ export default function PetaniDistribusiPage() {
             <MapPin size={13} className="text-plantation-400" />{row.tujuan}
           </p>
           <p className="text-xs text-plantation-500 mt-0.5 flex items-center gap-1">
-            <MessageSquare size={11} /> {row.catatan || '-'}
+            <Package size={11} /> {row.detailDistribusi?.length || 0} Jenis Komoditas
           </p>
         </div>
       ),
@@ -75,7 +74,7 @@ export default function PetaniDistribusiPage() {
       header: 'Tanggal',
       render: (row) => (
         <span className="text-plantation-600 flex items-center gap-1 w-max">
-          <Calendar size={13} className="text-plantation-400" />{new Date(row.tanggalDistribusi).toLocaleDateString('id-ID')}
+          <Calendar size={13} className="text-plantation-400" />{row.tanggalDistribusi ? new Date(row.tanggalDistribusi).toLocaleDateString('id-ID') : '-'}
         </span>
       ),
     },
@@ -103,7 +102,7 @@ export default function PetaniDistribusiPage() {
 
       {/* Status Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        {['MENUNGGU', 'DIPROSES', 'DIKIRIM', 'SELESAI'].map(status => {
+        {['PENDING', 'DIPROSES', 'DIKIRIM', 'SELESAI'].map(status => {
           const count = list.filter(d => d.status === status).length;
           return (
             <div key={status} className="glass-card-light p-4 text-center">
@@ -137,17 +136,43 @@ export default function PetaniDistribusiPage() {
               </div>
               <div>
                 <p className="text-xs text-plantation-500">Tanggal</p>
-                <p className="font-semibold text-plantation-900">{new Date(selectedDist.tanggalDistribusi).toLocaleDateString('id-ID')}</p>
+                <p className="font-semibold text-plantation-900">{selectedDist.tanggalDistribusi ? new Date(selectedDist.tanggalDistribusi).toLocaleDateString('id-ID') : '-'}</p>
               </div>
               <div>
                 <p className="text-xs text-plantation-500">Status</p>
-                <span className={statusColors[selectedDist.status] || 'badge-secondary'}>{selectedDist.status}</span>
+                <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${statusColors[selectedDist.status] || 'badge-secondary'}`}>{selectedDist.status}</span>
               </div>
             </div>
-            <div>
-              <p className="text-xs text-plantation-500 mb-1">Catatan</p>
-              <p className="text-sm text-plantation-700 bg-plantation-50 p-3 rounded-xl">{selectedDist.catatan || '-'}</p>
+            
+            {/* Rincian Komoditas */}
+            <div className="mt-4 border-t border-plantation-100 pt-4">
+              <p className="text-xs font-bold text-plantation-800 uppercase tracking-wide mb-2">Daftar Komoditas Dikirim</p>
+              <div className="bg-plantation-50 rounded-xl overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-plantation-100 text-plantation-700">
+                    <tr>
+                      <th className="px-4 py-2 text-left font-semibold">Komoditas</th>
+                      <th className="px-4 py-2 text-right font-semibold">Jumlah</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedDist.detailDistribusi && selectedDist.detailDistribusi.length > 0 ? (
+                      selectedDist.detailDistribusi.map((item, i) => (
+                        <tr key={i} className="border-b border-plantation-100/50 last:border-0">
+                          <td className="px-4 py-2 font-medium text-plantation-900">{item.namaKomoditas}</td>
+                          <td className="px-4 py-2 text-right text-plantation-700">{item.jumlah} {item.satuan}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="2" className="px-4 py-3 text-center text-plantation-500 text-xs">Tidak ada detail komoditas.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
+
           </div>
         )}
       </Modal>
