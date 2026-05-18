@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import {
-  Users, Package, Warehouse, Truck, TrendingUp,
-  ArrowUpRight, ArrowDownRight, Sprout, MapPin, Calendar
+  Users, Package, Warehouse, Truck, TrendingUp, TrendingDown, Minus,
+  ArrowUpRight, ArrowDownRight, Sprout, MapPin, Calendar, BadgeDollarSign
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -11,7 +11,7 @@ import StatCard from '../components/StatCard';
 import Header from '../components/Header';
 import {
   mockDashboardStats, stokPerKomoditas, distribusiPerBulan,
-  stokTrend, mockDistribusi
+  stokTrend, mockDistribusi, hargaPasar
 } from '../data/mockData';
 
 const statusColors = {
@@ -56,6 +56,57 @@ export default function DashboardPage() {
         <StatCard icon={Warehouse} label="Stok Masuk" value={`${stats.totalStokMasuk} Kg`} subtitle="Total bulan ini" color="earth" delay={0.2} />
         <StatCard icon={Truck} label="Total Distribusi" value={stats.totalDistribusi} subtitle={`${stats.distribusiSelesai} selesai`} color="blue" delay={0.3} />
       </div>
+
+      {/* Harga Komoditas di Pasar */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35 }}
+        className="mb-8"
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center">
+            <BadgeDollarSign size={18} className="text-white" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-plantation-900">Harga Komoditas di Pasar</h3>
+            <p className="text-xs text-plantation-500">Update harga terkini per komoditas</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {hargaPasar.map((item, i) => {
+            const isUp = item.perubahan > 0;
+            const isDown = item.perubahan < 0;
+            const TrendIcon = isUp ? TrendingUp : isDown ? TrendingDown : Minus;
+            const trendColor = isUp ? 'text-red-500' : isDown ? 'text-green-500' : 'text-plantation-400';
+            const trendBg = isUp ? 'bg-red-50' : isDown ? 'bg-green-50' : 'bg-plantation-50';
+            return (
+              <motion.div
+                key={item.nama}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 + i * 0.04 }}
+                className="glass-card-light p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <p className="text-sm font-semibold text-plantation-800 leading-tight">{item.nama}</p>
+                  <span className={`inline-flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full ${trendBg} ${trendColor}`}>
+                    <TrendIcon size={10} />
+                    {item.perubahan !== 0 ? `${Math.abs(item.perubahan)}%` : 'Stabil'}
+                  </span>
+                </div>
+                <p className="text-xl font-extrabold text-plantation-900">
+                  Rp{item.harga.toLocaleString('id-ID')}
+                  <span className="text-xs font-normal text-plantation-400 ml-0.5">{item.satuanHarga}</span>
+                </p>
+                <span className="inline-block mt-2 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-plantation-100 text-plantation-600">
+                  {item.kategori}
+                </span>
+              </motion.div>
+            );
+          })}
+        </div>
+      </motion.div>
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -188,51 +239,6 @@ export default function DashboardPage() {
         </motion.div>
       </div>
 
-      {/* Quick Info Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9 }}
-          className="glass-card-light p-5 flex items-center gap-4"
-        >
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-plantation-100 to-plantation-200 flex items-center justify-center">
-            <Sprout size={22} className="text-plantation-700" />
-          </div>
-          <div>
-            <p className="text-xs text-plantation-500 font-medium">Total Luas Lahan</p>
-            <p className="text-xl font-bold text-plantation-900">{stats.totalLuasLahan} Ha</p>
-          </div>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.0 }}
-          className="glass-card-light p-5 flex items-center gap-4"
-        >
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-leaf-100 to-leaf-200 flex items-center justify-center">
-            <MapPin size={22} className="text-leaf-700" />
-          </div>
-          <div>
-            <p className="text-xs text-plantation-500 font-medium">Kelompok Tani</p>
-            <p className="text-xl font-bold text-plantation-900">{stats.kelompokTani.length} Kelompok</p>
-          </div>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.1 }}
-          className="glass-card-light p-5 flex items-center gap-4"
-        >
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
-            <TrendingUp size={22} className="text-amber-700" />
-          </div>
-          <div>
-            <p className="text-xs text-plantation-500 font-medium">Distribusi Diproses</p>
-            <p className="text-xl font-bold text-plantation-900">{stats.distribusiProses} Proses</p>
-          </div>
-        </motion.div>
-      </div>
     </div>
   );
 }

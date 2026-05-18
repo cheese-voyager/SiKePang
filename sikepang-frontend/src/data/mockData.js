@@ -102,3 +102,16 @@ export const stokTrend = [
   { bulan: 'Mar', masuk: 1800, keluar: 600 },
   { bulan: 'Apr', masuk: 2030, keluar: 150 },
 ];
+
+// Market price data for dashboard
+export const hargaPasar = [
+  { nama: 'Beras Premium', harga: 14000, satuanHarga: '/Kg', perubahan: 2.1, kategori: 'Padi-padian' },
+  { nama: 'Jagung Pipil', harga: 6500, satuanHarga: '/Kg', perubahan: -1.5, kategori: 'Padi-padian' },
+  { nama: 'Kedelai Lokal', harga: 12000, satuanHarga: '/Kg', perubahan: 0.8, kategori: 'Kacang-kacangan' },
+  { nama: 'Cabai Merah', harga: 45000, satuanHarga: '/Kg', perubahan: 12.3, kategori: 'Sayuran' },
+  { nama: 'Bawang Merah', harga: 35000, satuanHarga: '/Kg', perubahan: -3.2, kategori: 'Sayuran' },
+  { nama: 'Singkong', harga: 3500, satuanHarga: '/Kg', perubahan: 0, kategori: 'Umbi-umbian' },
+  { nama: 'Ubi Jalar', harga: 5000, satuanHarga: '/Kg', perubahan: 1.0, kategori: 'Umbi-umbian' },
+  { nama: 'Tomat', harga: 12000, satuanHarga: '/Kg', perubahan: -5.7, kategori: 'Sayuran' },
+];
+
