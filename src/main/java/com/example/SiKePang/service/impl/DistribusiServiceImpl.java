@@ -46,4 +46,10 @@ public class DistribusiServiceImpl implements DistribusiService {
         distribusi.setStatus(status);
         return distribusiRepository.save(distribusi);
     }
+
+    @Override
+    public void delete(Long id) {
+        Distribusi distribusi = getById(id);
+        distribusiRepository.delete(distribusi);
+    }
 }

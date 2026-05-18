@@ -1,73 +1,94 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Edit3, Trash2, Users, MapPin, Ruler } from 'lucide-react';
 import Header from '../components/Header';
 import DataTable from '../components/DataTable';
 import Modal from '../components/Modal';
-import { mockPetani } from '../data/mockData';
+import { getPetani, createPetani, updatePetani, deletePetani } from '../services/petaniService';
 
 export default function PetaniPage() {
-  const [petaniList, setPetaniList] = useState(mockPetani);
-  const [filtered, setFiltered] = useState(mockPetani);
+  const [petaniList, setPetaniList] = useState([]);
+  const [filtered, setFiltered] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editData, setEditData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
-    nama: '', namaKelompok: '', alamat: '', noTelepon: '', luasLahan: ''
+    nama: '', email: '', password: '', kelompokTani: '', alamat: '', nomorTelepon: ''
   });
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const data = await getPetani();
+      setPetaniList(data || []);
+      setFiltered(data || []);
+    } catch (error) {
+      console.error("Failed to load petani:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleSearch = (query) => {
     const q = query.toLowerCase();
     setFiltered(petaniList.filter(p =>
-      p.nama.toLowerCase().includes(q) ||
-      p.namaKelompok.toLowerCase().includes(q) ||
-      p.alamat.toLowerCase().includes(q)
+      p.nama?.toLowerCase().includes(q) ||
+      p.kelompokTani?.toLowerCase().includes(q) ||
+      p.alamat?.toLowerCase().includes(q)
     ));
   };
 
   const openAdd = () => {
     setEditData(null);
-    setFormData({ nama: '', namaKelompok: '', alamat: '', noTelepon: '', luasLahan: '' });
+    setFormData({ nama: '', email: '', password: '', kelompokTani: '', alamat: '', nomorTelepon: '' });
     setModalOpen(true);
   };
 
   const openEdit = (petani) => {
     setEditData(petani);
     setFormData({
-      nama: petani.nama,
-      namaKelompok: petani.namaKelompok,
-      alamat: petani.alamat,
-      noTelepon: petani.noTelepon,
-      luasLahan: petani.luasLahan,
+      nama: petani.nama || '',
+      email: petani.email || '',
+      password: '', // Leave blank unless they want to change
+      kelompokTani: petani.kelompokTani || '',
+      alamat: petani.alamat || '',
+      nomorTelepon: petani.nomorTelepon || '',
     });
     setModalOpen(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editData) {
-      const updated = petaniList.map(p =>
-        p.id === editData.id ? { ...p, ...formData, luasLahan: parseFloat(formData.luasLahan) } : p
-      );
-      setPetaniList(updated);
-      setFiltered(updated);
-    } else {
-      const newPetani = {
-        id: petaniList.length + 1,
-        ...formData,
-        luasLahan: parseFloat(formData.luasLahan),
-        createdAt: new Date().toISOString().split('T')[0],
-      };
-      const updated = [...petaniList, newPetani];
-      setPetaniList(updated);
-      setFiltered(updated);
+    try {
+      const dataToSubmit = { ...formData };
+      if (editData) {
+        if (!dataToSubmit.password) delete dataToSubmit.password; // Don't send empty password on update
+        await updatePetani(editData.id, dataToSubmit);
+      } else {
+        await createPetani(dataToSubmit);
+      }
+      await fetchData();
+      setModalOpen(false);
+    } catch (error) {
+      console.error("Failed to save petani:", error);
+      alert("Gagal menyimpan data petani");
     }
-    setModalOpen(false);
   };
 
-  const handleDelete = (id) => {
-    const updated = petaniList.filter(p => p.id !== id);
-    setPetaniList(updated);
-    setFiltered(updated);
+  const handleDelete = async (id) => {
+    if (window.confirm("Apakah Anda yakin ingin menghapus data petani ini?")) {
+      try {
+        await deletePetani(id);
+        await fetchData();
+      } catch (error) {
+        console.error("Failed to delete petani:", error);
+        alert("Gagal menghapus data petani");
+      }
+    }
   };
 
   const columns = [
@@ -76,11 +97,11 @@ export default function PetaniPage() {
       render: (row) => (
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-plantation-400 to-plantation-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-            {row.nama.charAt(0)}
+            {row.nama?.charAt(0) || 'P'}
           </div>
           <div>
             <p className="font-semibold text-plantation-900">{row.nama}</p>
-            <p className="text-xs text-plantation-500">{row.noTelepon}</p>
+            <p className="text-xs text-plantation-500">{row.nomorTelepon}</p>
           </div>
         </div>
       ),
@@ -90,7 +111,7 @@ export default function PetaniPage() {
       render: (row) => (
         <span className="inline-flex items-center gap-1.5 text-plantation-700 font-medium">
           <Users size={13} className="text-plantation-400" />
-          {row.namaKelompok}
+          {row.kelompokTani}
         </span>
       ),
     },
@@ -104,13 +125,8 @@ export default function PetaniPage() {
       ),
     },
     {
-      header: 'Luas Lahan',
-      render: (row) => (
-        <span className="inline-flex items-center gap-1.5 font-semibold text-plantation-800">
-          <Ruler size={13} className="text-plantation-400" />
-          {row.luasLahan} Ha
-        </span>
-      ),
+      header: 'Email',
+      accessor: 'email'
     },
     {
       header: 'Aksi',
@@ -129,9 +145,7 @@ export default function PetaniPage() {
 
   // Summary stats
   const totalPetani = petaniList.length;
-  const kelompokSet = [...new Set(petaniList.map(p => p.namaKelompok))];
-  const totalLahan = petaniList.reduce((a, b) => a + b.luasLahan, 0);
-  const avgLahan = totalLahan / totalPetani;
+  const kelompokSet = [...new Set(petaniList.map(p => p.kelompokTani).filter(k => k && k !== '-'))];
 
   return (
     <div>
@@ -143,7 +157,7 @@ export default function PetaniPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-6">
         <div className="glass-card-light p-4 text-center">
           <p className="text-2xl font-bold text-plantation-800">{totalPetani}</p>
           <p className="text-xs text-plantation-500 mt-0.5">Total Petani</p>
@@ -152,17 +166,15 @@ export default function PetaniPage() {
           <p className="text-2xl font-bold text-plantation-800">{kelompokSet.length}</p>
           <p className="text-xs text-plantation-500 mt-0.5">Kelompok Tani</p>
         </div>
-        <div className="glass-card-light p-4 text-center">
-          <p className="text-2xl font-bold text-plantation-800">{totalLahan.toFixed(1)} Ha</p>
-          <p className="text-xs text-plantation-500 mt-0.5">Total Lahan</p>
-        </div>
-        <div className="glass-card-light p-4 text-center">
-          <p className="text-2xl font-bold text-plantation-800">{avgLahan.toFixed(1)} Ha</p>
-          <p className="text-xs text-plantation-500 mt-0.5">Rata-rata</p>
-        </div>
       </div>
 
-      <DataTable columns={columns} data={filtered} searchPlaceholder="Cari petani, kelompok, atau alamat..." onSearch={handleSearch} />
+      {loading ? (
+        <div className="flex items-center justify-center p-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-plantation-600"></div>
+        </div>
+      ) : (
+        <DataTable columns={columns} data={filtered} searchPlaceholder="Cari petani, kelompok, atau alamat..." onSearch={handleSearch} />
+      )}
 
       {/* Add/Edit Modal */}
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editData ? 'Edit Data Petani' : 'Tambah Petani Baru'}>
@@ -171,23 +183,27 @@ export default function PetaniPage() {
             <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Nama Lengkap</label>
             <input type="text" className="input-field" placeholder="Masukkan nama petani" value={formData.nama} onChange={(e) => setFormData({ ...formData, nama: e.target.value })} required />
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Email</label>
+              <input type="email" className="input-field" placeholder="Email untuk login" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Password</label>
+              <input type="password" className="input-field" placeholder={editData ? '(Biarkan kosong jika tidak diubah)' : 'Password login'} value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} required={!editData} />
+            </div>
+          </div>
           <div>
             <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Kelompok Tani</label>
-            <input type="text" className="input-field" placeholder="Masukkan nama kelompok" value={formData.namaKelompok} onChange={(e) => setFormData({ ...formData, namaKelompok: e.target.value })} required />
+            <input type="text" className="input-field" placeholder="Masukkan nama kelompok" value={formData.kelompokTani} onChange={(e) => setFormData({ ...formData, kelompokTani: e.target.value })} required />
           </div>
           <div>
             <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Alamat</label>
             <input type="text" className="input-field" placeholder="Masukkan alamat" value={formData.alamat} onChange={(e) => setFormData({ ...formData, alamat: e.target.value })} required />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-plantation-700 mb-1.5">No. Telepon</label>
-              <input type="tel" className="input-field" placeholder="08xxxxxxxxxx" value={formData.noTelepon} onChange={(e) => setFormData({ ...formData, noTelepon: e.target.value })} required />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Luas Lahan (Ha)</label>
-              <input type="number" step="0.1" className="input-field" placeholder="0.0" value={formData.luasLahan} onChange={(e) => setFormData({ ...formData, luasLahan: e.target.value })} required />
-            </div>
+          <div>
+            <label className="block text-sm font-semibold text-plantation-700 mb-1.5">No. Telepon</label>
+            <input type="tel" className="input-field" placeholder="08xxxxxxxxxx" value={formData.nomorTelepon} onChange={(e) => setFormData({ ...formData, nomorTelepon: e.target.value })} required />
           </div>
           <div className="flex gap-3 pt-2">
             <button type="submit" className="btn-primary flex-1">{editData ? 'Simpan Perubahan' : 'Tambah Petani'}</button>

@@ -27,7 +27,8 @@ public class CorsConfig {
                 "Authorization",
                 "Content-Type",
                 "Accept",
-                "X-Requested-With"
+                "X-Requested-With",
+                "X-User-Id"
         ));
 
         // Izinkan cookies / credentials (jika pakai session atau JWT di cookie)

@@ -71,6 +71,23 @@ public class StokPanganController {
                 .body(ApiResponse.success("Stok pangan berhasil ditambahkan", data));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<StokPanganResponse>> update(
+            @PathVariable Long id,
+            @Valid @RequestBody StokPanganRequest request) {
+        Petani petani = petaniService.getById(request.getPetaniId());
+        Komoditas komoditas = komoditasService.getById(request.getKomoditasId());
+
+        StokPangan stokPangan = new StokPangan();
+        stokPangan.setPetani(petani);
+        stokPangan.setKomoditas(komoditas);
+        stokPangan.setJumlah(request.getJumlah());
+        stokPangan.setJenisTransaksi(request.getJenisTransaksi());
+
+        StokPanganResponse data = StokPanganResponse.fromEntity(stokPanganService.update(id, stokPangan));
+        return ResponseEntity.ok(ApiResponse.success("Stok pangan berhasil diupdate", data));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         stokPanganService.delete(id);

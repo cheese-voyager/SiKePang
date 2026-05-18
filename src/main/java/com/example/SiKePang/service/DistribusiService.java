@@ -8,4 +8,5 @@ public interface DistribusiService {
     Distribusi getById(Long id);
     Distribusi create(Distribusi distribusi);
     Distribusi updateStatus(Long id, String status);
+    void delete(Long id);
 }

@@ -1,27 +1,64 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Leaf, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Leaf, Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const { handleLogin, isAuthenticated, user } = useAuth();
   const [showPass, setShowPass] = useState(false);
   const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  // Jika sudah login, redirect otomatis
+  if (isAuthenticated && user) {
+    const target = user.role === 'PETANI' ? '/petani' : '/dashboard';
+    navigate(target, { replace: true });
+    return null;
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     setLoading(true);
-    setTimeout(() => {
+
+    // Validasi input dasar di sisi client
+    const email = form.email.trim();
+    const password = form.password;
+
+    if (!email || !password) {
+      setError('Email dan password harus diisi.');
       setLoading(false);
-      // Simulasi role check
-      const email = form.email.toLowerCase();
-      if (email.includes('petani') || email.includes('budi') || email.includes('siti') || email.includes('ahmad')) {
-        navigate('/petani');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password minimal 6 karakter.');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const result = await handleLogin(email, password);
+
+      if (result.success) {
+        // Navigasi berdasarkan role dari backend
+        const role = result.role?.toUpperCase();
+        if (role === 'PETANI') {
+          navigate('/petani', { replace: true });
+        } else {
+          navigate('/dashboard', { replace: true });
+        }
       } else {
-        navigate('/dashboard');
+        setError(result.message || 'Email atau password salah.');
       }
-    }, 1200);
+    } catch {
+      setError('Gagal menghubungi server. Pastikan backend sudah menyala.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -68,23 +105,49 @@ export default function LoginPage() {
           <h2 className="text-3xl font-extrabold text-plantation-900 mb-2">Masuk</h2>
           <p className="text-plantation-500 mb-8">Masuk ke akun Anda untuk mengelola data pangan</p>
 
+          {/* Error Alert */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-5 flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3"
+            >
+              <AlertCircle size={18} className="text-red-500 mt-0.5 flex-shrink-0" />
+              <p className="text-sm text-red-700">{error}</p>
+            </motion.div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Email</label>
+              <label htmlFor="login-email" className="block text-sm font-semibold text-plantation-700 mb-1.5">Email</label>
               <div className="relative">
                 <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-plantation-400" />
-                <input type="email" required placeholder="nama@email.com" value={form.email}
-                  onChange={e => setForm({ ...form, email: e.target.value })}
-                  className="input-field pl-11" />
+                <input
+                  id="login-email"
+                  type="email"
+                  required
+                  placeholder="nama@email.com"
+                  value={form.email}
+                  onChange={e => { setForm({ ...form, email: e.target.value }); setError(''); }}
+                  className="input-field pl-11"
+                  autoComplete="email"
+                />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Password</label>
+              <label htmlFor="login-password" className="block text-sm font-semibold text-plantation-700 mb-1.5">Password</label>
               <div className="relative">
                 <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-plantation-400" />
-                <input type={showPass ? 'text' : 'password'} required placeholder="••••••••" value={form.password}
-                  onChange={e => setForm({ ...form, password: e.target.value })}
-                  className="input-field pl-11 pr-11" />
+                <input
+                  id="login-password"
+                  type={showPass ? 'text' : 'password'}
+                  required
+                  placeholder="••••••••"
+                  value={form.password}
+                  onChange={e => { setForm({ ...form, password: e.target.value }); setError(''); }}
+                  className="input-field pl-11 pr-11"
+                  autoComplete="current-password"
+                />
                 <button type="button" onClick={() => setShowPass(!showPass)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-plantation-400 hover:text-plantation-600">
                   {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -108,9 +171,6 @@ export default function LoginPage() {
                 <>Masuk <ArrowRight size={18} /></>
               )}
             </button>
-            <p className="text-xs text-plantation-500 text-center mt-2">
-              *Gunakan email <span className="font-semibold text-plantation-700">budi@gmail.com</span> untuk masuk sebagai Petani.
-            </p>
           </form>
 
           <p className="text-center text-sm text-plantation-500 mt-6">

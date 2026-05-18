@@ -66,4 +66,16 @@ public class AuthServiceImpl implements AuthService {
 
         return penggunaRepository.save(pengguna);
     }
+
+    @Override
+    public BasePengguna getById(Long id) {
+        return penggunaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User tidak ditemukan."));
+    }
+
+    @Override
+    public BasePengguna getByEmail(String email) {
+        return penggunaRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User dengan email tersebut tidak ditemukan."));
+    }
 }

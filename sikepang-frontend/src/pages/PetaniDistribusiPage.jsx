@@ -1,35 +1,54 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Eye, Truck, MapPin, Calendar, MessageSquare } from 'lucide-react';
 import Header from '../components/Header';
 import DataTable from '../components/DataTable';
 import Modal from '../components/Modal';
-import { mockDistribusi, mockDistribusiKomoditas, mockPetani } from '../data/mockData';
+import { getDistribusi } from '../services/distribusiService';
+import { useAuth } from '../contexts/AuthContext';
 
 const statusColors = {
   'SELESAI': 'badge-success',
   'DIKIRIM': 'badge-info',
   'DIPROSES': 'badge-warning',
   'MENUNGGU': 'badge-danger',
+  'PENDING': 'badge-warning'
 };
 
 export default function PetaniDistribusiPage() {
-  const currentPetaniId = 1; // Mock: Budi Santoso
-  const currentPetani = mockPetani.find(p => p.id === currentPetaniId);
-  const myGroupFarmers = mockPetani.filter(p => p.namaKelompok === currentPetani.namaKelompok).map(p => p.id);
-
-  const myGroupDistribusi = mockDistribusi.filter(d => myGroupFarmers.includes(d.idPetani));
-
-  const [list, setList] = useState(myGroupDistribusi);
-  const [filtered, setFiltered] = useState(myGroupDistribusi);
+  const { user } = useAuth();
+  
+  const [list, setList] = useState([]);
+  const [filtered, setFiltered] = useState([]);
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedDist, setSelectedDist] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async () => {
+    if (!user) return;
+    try {
+      setLoading(true);
+      const data = await getDistribusi();
+      // Filter distributions matching the user's id (since the backend doesn't have getDistribusiByPetani yet, we filter here)
+      // Ideally, there should be an endpoint, but this works for now.
+      const myDist = (data || []).filter(d => d.namaPetani === user.nama); 
+      setList(myDist);
+      setFiltered(myDist);
+    } catch (error) {
+      console.error("Failed to load distribusi:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [user]);
 
   const handleSearch = (q) => {
     const query = q.toLowerCase();
     setFiltered(list.filter(d =>
-      d.namaPetani.toLowerCase().includes(query) ||
-      d.tujuan.toLowerCase().includes(query) ||
-      d.status.toLowerCase().includes(query)
+      d.tujuan?.toLowerCase().includes(query) ||
+      d.status?.toLowerCase().includes(query)
     ));
   };
 
@@ -37,10 +56,6 @@ export default function PetaniDistribusiPage() {
     setSelectedDist(dist);
     setDetailOpen(true);
   };
-
-  const detailKomoditas = selectedDist
-    ? mockDistribusiKomoditas.filter(dk => dk.idDistribusi === selectedDist.idDistribusi)
-    : [];
 
   const columns = [
     {
@@ -51,26 +66,22 @@ export default function PetaniDistribusiPage() {
             <MapPin size={13} className="text-plantation-400" />{row.tujuan}
           </p>
           <p className="text-xs text-plantation-500 mt-0.5 flex items-center gap-1">
-            <MessageSquare size={11} /> {row.catatan}
+            <MessageSquare size={11} /> {row.catatan || '-'}
           </p>
         </div>
       ),
     },
     {
-      header: 'Petani (Kelompok)',
-      render: (row) => <p className="text-plantation-700 font-medium">{row.namaPetani}</p>,
-    },
-    {
       header: 'Tanggal',
       render: (row) => (
         <span className="text-plantation-600 flex items-center gap-1 w-max">
-          <Calendar size={13} className="text-plantation-400" />{row.tanggalDistribusi}
+          <Calendar size={13} className="text-plantation-400" />{new Date(row.tanggalDistribusi).toLocaleDateString('id-ID')}
         </span>
       ),
     },
     {
       header: 'Status',
-      render: (row) => <span className={`w-max ${statusColors[row.status]}`}>{row.status}</span>,
+      render: (row) => <span className={`w-max ${statusColors[row.status] || 'badge-secondary'}`}>{row.status}</span>,
     },
     {
       header: 'Aksi',
@@ -87,7 +98,7 @@ export default function PetaniDistribusiPage() {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <Header title="Riwayat Distribusi" subtitle={`Pantau pengiriman hasil panen dari kelompok ${currentPetani.namaKelompok}`} />
+        <Header title="Riwayat Distribusi" subtitle={`Pantau pengiriman hasil panen Anda`} />
       </div>
 
       {/* Status Summary */}
@@ -103,7 +114,13 @@ export default function PetaniDistribusiPage() {
         })}
       </div>
 
-      <DataTable columns={columns} data={filtered} searchPlaceholder="Cari tujuan, petani, atau status..." onSearch={handleSearch} />
+      {loading ? (
+        <div className="flex items-center justify-center p-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-plantation-600"></div>
+        </div>
+      ) : (
+        <DataTable columns={columns} data={filtered} searchPlaceholder="Cari tujuan atau status..." onSearch={handleSearch} />
+      )}
 
       {/* Detail Modal */}
       <Modal isOpen={detailOpen} onClose={() => setDetailOpen(false)} title="Detail Distribusi" size="lg">
@@ -120,31 +137,16 @@ export default function PetaniDistribusiPage() {
               </div>
               <div>
                 <p className="text-xs text-plantation-500">Tanggal</p>
-                <p className="font-semibold text-plantation-900">{selectedDist.tanggalDistribusi}</p>
+                <p className="font-semibold text-plantation-900">{new Date(selectedDist.tanggalDistribusi).toLocaleDateString('id-ID')}</p>
               </div>
               <div>
                 <p className="text-xs text-plantation-500">Status</p>
-                <span className={statusColors[selectedDist.status]}>{selectedDist.status}</span>
+                <span className={statusColors[selectedDist.status] || 'badge-secondary'}>{selectedDist.status}</span>
               </div>
             </div>
             <div>
               <p className="text-xs text-plantation-500 mb-1">Catatan</p>
-              <p className="text-sm text-plantation-700 bg-plantation-50 p-3 rounded-xl">{selectedDist.catatan}</p>
-            </div>
-            <div>
-              <p className="text-sm font-bold text-plantation-800 mb-2">Komoditas yang Didistribusikan</p>
-              {detailKomoditas.length > 0 ? (
-                <div className="space-y-2">
-                  {detailKomoditas.map(dk => (
-                    <div key={dk.id} className="flex items-center justify-between p-3 bg-plantation-50 rounded-xl">
-                      <span className="font-medium text-plantation-800">{dk.namaKomoditas}</span>
-                      <span className="font-bold text-plantation-700">{dk.jumlah} {dk.satuan}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-plantation-400 italic">Belum ada rincian komoditas pada distribusi ini.</p>
-              )}
+              <p className="text-sm text-plantation-700 bg-plantation-50 p-3 rounded-xl">{selectedDist.catatan || '-'}</p>
             </div>
           </div>
         )}

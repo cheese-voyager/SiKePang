@@ -1,52 +1,43 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Leaf, Mail, Lock, Eye, EyeOff, User, Phone, ArrowRight, CheckCircle2 } from 'lucide-react';
-
-
+import { Leaf, Mail, Lock, Eye, EyeOff, User, Phone, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
+import { register } from '../services/authService';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [form, setForm] = useState({ nama: '', email: '', phone: '', password: '', confirmPassword: '', secretKey: '' });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
     if (form.password !== form.confirmPassword) {
-      alert('Password tidak cocok!');
+      setError('Password tidak cocok!');
       return;
     }
+
+    if (form.password.length < 8) {
+      setError('Password minimal 8 karakter.');
+      return;
+    }
+
     setLoading(true);
-    
+
     try {
-      // Panggil API Backend Spring Boot
-      const response = await fetch('http://127.0.0.1:8081/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          nama: form.nama,
-          email: form.email,
-          password: form.password,
-          phone: form.phone,
-          secretKey: form.secretKey,
-          kelompokTani: '-', // Default kosong
-          alamat: '-'        // Default kosong
-        }),
-      });
+      const result = await register(form);
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      if (result.success) {
         alert('Pendaftaran berhasil! Silakan login.');
         navigate('/login');
       } else {
-        alert('Pendaftaran gagal: ' + data.message);
+        setError(result.message);
       }
-    } catch (error) {
-      alert('Gagal menghubungi server. Pastikan backend sudah menyala.');
+    } catch {
+      setError('Gagal menghubungi server. Pastikan backend sudah menyala.');
     } finally {
       setLoading(false);
     }
@@ -98,6 +89,17 @@ export default function RegisterPage() {
           <p className="text-plantation-500 mb-6">Isi data di bawah untuk mendaftar ke SiKePang</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Error Alert */}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3"
+              >
+                <AlertCircle size={18} className="text-red-500 mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-red-700">{error}</p>
+              </motion.div>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Nama Lengkap</label>

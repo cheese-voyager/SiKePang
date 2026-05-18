@@ -4,7 +4,8 @@ import {
   LayoutDashboard, Users, Package, Warehouse, Truck,
   Menu, X, ChevronDown, LogOut, Bell, Leaf, Sun, Moon
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -15,6 +16,8 @@ const navItems = [
 ];
 
 export default function Sidebar({ activePage, onNavigate }) {
+  const navigate = useNavigate();
+  const { user, handleLogout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -113,15 +116,19 @@ export default function Sidebar({ activePage, onNavigate }) {
             <div className="relative px-4 py-4 border-t border-white/10">
               <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-leaf-400 to-plantation-500 flex items-center justify-center text-white text-sm font-bold">
-                  A
+                  {user?.nama?.charAt(0)?.toUpperCase() || 'U'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-white truncate">Admin Utama</p>
-                  <p className="text-[11px] text-plantation-300 truncate">admin@sikepang.id</p>
+                  <p className="text-sm font-semibold text-white truncate">{user?.nama || 'Pengguna'}</p>
+                  <p className="text-[11px] text-plantation-300 truncate">{user?.email || ''}</p>
                 </div>
-                <Link to="/" className="text-plantation-700 font-semibold hover:text-plantation-900 underline-offset-4 hover:underline">
-                  <LogOut size={16} className="text-plantation-400 hover:text-white cursor-pointer transition-colors" to="/" />
-                </Link>
+                <button
+                  onClick={async () => { await handleLogout(); navigate('/login', { replace: true }); }}
+                  className="text-plantation-400 hover:text-white cursor-pointer transition-colors"
+                  title="Keluar"
+                >
+                  <LogOut size={16} />
+                </button>
               </div>
             </div>
           </motion.aside>

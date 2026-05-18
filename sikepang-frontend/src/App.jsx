@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
+// Auth & Guards
+import ProtectedRoute from './components/ProtectedRoute';
+
 // Layout Components
 import Sidebar from './components/Sidebar';
 import PetaniSidebar from './components/PetaniSidebar';
@@ -84,11 +87,32 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/dashboard" element={<DashboardLayout />} />
-        <Route path="/petani" element={<PetaniLayout />} />
+
+        {/* Protected: Admin & Petugas */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN', 'PETUGAS']}>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Protected: Petani */}
+        <Route
+          path="/petani"
+          element={
+            <ProtectedRoute allowedRoles={['PETANI']}>
+              <PetaniLayout />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

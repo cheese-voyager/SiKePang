@@ -43,6 +43,16 @@ public class StokPanganServiceImpl implements StokPanganService {
     }
 
     @Override
+    public StokPangan update(Long id, StokPangan updatedStok) {
+        StokPangan existing = getById(id);
+        if (updatedStok.getPetani() != null) existing.setPetani(updatedStok.getPetani());
+        if (updatedStok.getKomoditas() != null) existing.setKomoditas(updatedStok.getKomoditas());
+        if (updatedStok.getJumlah() != null) existing.setJumlah(updatedStok.getJumlah());
+        if (updatedStok.getJenisTransaksi() != null) existing.setJenisTransaksi(updatedStok.getJenisTransaksi());
+        return stokPanganRepository.save(existing);
+    }
+
+    @Override
     public void delete(Long id) {
         StokPangan stokPangan = getById(id);
         stokPanganRepository.delete(stokPangan);

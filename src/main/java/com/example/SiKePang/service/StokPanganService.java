@@ -8,5 +8,6 @@ public interface StokPanganService {
     List<StokPangan> getByPetaniId(Long petaniId);
     StokPangan getById(Long id);
     StokPangan create(StokPangan stokPangan);
+    StokPangan update(Long id, StokPangan stokPangan);
     void delete(Long id);
 }

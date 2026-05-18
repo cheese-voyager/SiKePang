@@ -81,4 +81,10 @@ public class DistribusiController {
                 distribusiService.updateStatus(id, request.getStatus()));
         return ResponseEntity.ok(ApiResponse.success("Status distribusi berhasil diupdate", data));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+        distribusiService.delete(id);
+        return ResponseEntity.ok(ApiResponse.success("Distribusi berhasil dihapus", null));
+    }
 }

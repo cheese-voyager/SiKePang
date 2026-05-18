@@ -1,58 +1,87 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Trash2, ArrowDownToLine, ArrowUpFromLine } from 'lucide-react';
 import Header from '../components/Header';
 import DataTable from '../components/DataTable';
 import Modal from '../components/Modal';
-import { mockStokPangan, mockPetani, mockKomoditas } from '../data/mockData';
+import { getStokByPetani, createStok, deleteStok } from '../services/stokService';
+import { getKomoditas } from '../services/komoditasService';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function PetaniStokPage() {
-  const currentPetaniId = 1; // Mock: Budi Santoso
-  const currentPetani = mockPetani.find(p => p.id === currentPetaniId);
-
-  const initialStok = mockStokPangan.filter(s => s.idPetani === currentPetaniId);
-
-  const [list, setList] = useState(initialStok);
-  const [filtered, setFiltered] = useState(initialStok);
+  const { user } = useAuth();
+  
+  const [list, setList] = useState([]);
+  const [filtered, setFiltered] = useState([]);
+  const [komoditasList, setKomoditasList] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     idKomoditas: '', jumlahStok: '', status: 'MASUK'
   });
 
+  const fetchData = async () => {
+    if (!user) return;
+    try {
+      setLoading(true);
+      const [stokData, kList] = await Promise.all([
+        getStokByPetani(user.id),
+        getKomoditas()
+      ]);
+      setList(stokData || []);
+      setFiltered(stokData || []);
+      setKomoditasList(kList || []);
+    } catch (error) {
+      console.error("Failed to load stok data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [user]);
+
   const handleSearch = (q) => {
     const query = q.toLowerCase();
     setFiltered(list.filter(s =>
-      s.namaKomoditas.toLowerCase().includes(query) ||
-      s.status.toLowerCase().includes(query)
+      s.namaKomoditas?.toLowerCase().includes(query) ||
+      s.jenisTransaksi?.toLowerCase().includes(query)
     ));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const komoditas = mockKomoditas.find(k => k.idKomoditas === parseInt(formData.idKomoditas));
-    const newItem = {
-      idStok: Date.now(), // Generate mock ID
-      idPetani: currentPetaniId,
-      idKomoditas: parseInt(formData.idKomoditas),
-      namaPetani: currentPetani.nama,
-      namaKomoditas: komoditas?.namaKomoditas || '',
-      jumlahStok: parseFloat(formData.jumlahStok),
-      tanggalUpdate: new Date().toISOString().split('T')[0],
-      status: formData.status,
-    };
-    const updated = [newItem, ...list];
-    setList(updated); setFiltered(updated);
-    setModalOpen(false);
-    setFormData({ idKomoditas: '', jumlahStok: '', status: 'MASUK' });
+    try {
+      await createStok({
+        petaniId: user.id,
+        komoditasId: parseInt(formData.idKomoditas),
+        jumlah: parseFloat(formData.jumlahStok),
+        jenisTransaksi: formData.status
+      });
+      await fetchData();
+      setModalOpen(false);
+      setFormData({ idKomoditas: '', jumlahStok: '', status: 'MASUK' });
+    } catch (error) {
+      console.error("Failed to save stok:", error);
+      alert("Gagal mencatat stok pangan");
+    }
   };
 
-  const handleDelete = (id) => {
-    const updated = list.filter(s => s.idStok !== id);
-    setList(updated); setFiltered(updated);
+  const handleDelete = async (id) => {
+    if (window.confirm("Apakah Anda yakin ingin menghapus data stok ini?")) {
+      try {
+        await deleteStok(id);
+        await fetchData();
+      } catch (error) {
+        console.error("Failed to delete stok:", error);
+        alert("Gagal menghapus stok pangan");
+      }
+    }
   };
 
-  const totalMasuk = list.filter(s => s.status === 'MASUK').reduce((a, b) => a + b.jumlahStok, 0);
-  const totalKeluar = list.filter(s => s.status === 'KELUAR').reduce((a, b) => a + b.jumlahStok, 0);
+  const totalMasuk = list.filter(s => s.jenisTransaksi === 'MASUK').reduce((a, b) => a + b.jumlah, 0);
+  const totalKeluar = list.filter(s => s.jenisTransaksi === 'KELUAR').reduce((a, b) => a + b.jumlah, 0);
 
   const columns = [
     {
@@ -61,22 +90,25 @@ export default function PetaniStokPage() {
     },
     {
       header: 'Jumlah',
-      render: (row) => <span className="font-bold text-plantation-800">{row.jumlahStok} Kg</span>,
+      render: (row) => <span className="font-bold text-plantation-800">{row.jumlah} Kg</span>,
     },
-    { header: 'Tanggal', accessor: 'tanggalUpdate' },
+    { 
+      header: 'Tanggal', 
+      render: (row) => <span>{new Date(row.tanggal).toLocaleDateString('id-ID')}</span> 
+    },
     {
       header: 'Status',
       render: (row) => (
-        <span className={`badge flex items-center gap-1 w-max ${row.status === 'MASUK' ? 'badge-success' : 'badge-warning'}`}>
-          {row.status === 'MASUK' ? <ArrowDownToLine size={12} /> : <ArrowUpFromLine size={12} />}
-          {row.status}
+        <span className={`badge flex items-center gap-1 w-max ${row.jenisTransaksi === 'MASUK' ? 'badge-success' : 'badge-warning'}`}>
+          {row.jenisTransaksi === 'MASUK' ? <ArrowDownToLine size={12} /> : <ArrowUpFromLine size={12} />}
+          {row.jenisTransaksi}
         </span>
       ),
     },
     {
       header: 'Aksi',
       render: (row) => (
-        <button onClick={() => handleDelete(row.idStok)} className="p-2 rounded-lg hover:bg-red-50 text-red-400 transition-colors">
+        <button onClick={() => handleDelete(row.id)} className="p-2 rounded-lg hover:bg-red-50 text-red-400 transition-colors">
           <Trash2 size={15} />
         </button>
       ),
@@ -111,7 +143,13 @@ export default function PetaniStokPage() {
         </div>
       </div>
 
-      <DataTable columns={columns} data={filtered} searchPlaceholder="Cari komoditas atau status..." onSearch={handleSearch} />
+      {loading ? (
+        <div className="flex items-center justify-center p-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-plantation-600"></div>
+        </div>
+      ) : (
+        <DataTable columns={columns} data={filtered} searchPlaceholder="Cari komoditas atau status..." onSearch={handleSearch} />
+      )}
 
       <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Catat Stok Pangan Baru">
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -119,13 +157,13 @@ export default function PetaniStokPage() {
             <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Komoditas</label>
             <select className="select-field" value={formData.idKomoditas} onChange={(e) => setFormData({ ...formData, idKomoditas: e.target.value })} required>
               <option value="">Pilih komoditas</option>
-              {mockKomoditas.map(k => <option key={k.idKomoditas} value={k.idKomoditas}>{k.namaKomoditas}</option>)}
+              {komoditasList.map(k => <option key={k.idKomoditas} value={k.idKomoditas}>{k.namaKomoditas}</option>)}
             </select>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Jumlah (Kg)</label>
-              <input type="number" className="input-field" placeholder="0" value={formData.jumlahStok} onChange={(e) => setFormData({ ...formData, jumlahStok: e.target.value })} required />
+              <input type="number" className="input-field" placeholder="0" value={formData.jumlahStok} onChange={(e) => setFormData({ ...formData, jumlahStok: e.target.value })} required min="1" step="0.1" />
             </div>
             <div>
               <label className="block text-sm font-semibold text-plantation-700 mb-1.5">Status</label>
