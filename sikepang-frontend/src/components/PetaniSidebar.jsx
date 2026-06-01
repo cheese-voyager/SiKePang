@@ -1,16 +1,23 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  LayoutDashboard, Warehouse, Truck,
-  Menu, X, LogOut, Leaf
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+  LayoutDashboard,
+  Warehouse,
+  Truck,
+  UserCircle,
+  Menu,
+  X,
+  LogOut,
+  Leaf,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'stok', label: 'Stok Pangan Saya', icon: Warehouse },
-  { id: 'distribusi', label: 'Riwayat Distribusi', icon: Truck },
+  { id: "dashboard", label: "Beranda Saya", icon: LayoutDashboard },
+  { id: "stok", label: "Data Panen Saya", icon: Warehouse },
+  { id: "distribusi", label: "Riwayat Pengiriman", icon: Truck },
+  { id: "profil", label: "Profil Saya", icon: UserCircle },
 ];
 
 export default function PetaniSidebar({ activePage, onNavigate }) {
@@ -26,8 +33,8 @@ export default function PetaniSidebar({ activePage, onNavigate }) {
       else setIsOpen(false);
     };
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   const handleNavigate = (id) => {
@@ -37,7 +44,6 @@ export default function PetaniSidebar({ activePage, onNavigate }) {
 
   return (
     <>
-      {/* Mobile Hamburger */}
       {isMobile && (
         <button
           id="sidebar-toggle"
@@ -48,7 +54,6 @@ export default function PetaniSidebar({ activePage, onNavigate }) {
         </button>
       )}
 
-      {/* Overlay for mobile */}
       <AnimatePresence>
         {isMobile && isOpen && (
           <motion.div
@@ -61,17 +66,15 @@ export default function PetaniSidebar({ activePage, onNavigate }) {
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
       <AnimatePresence>
         {(isOpen || !isMobile) && (
           <motion.aside
             initial={isMobile ? { x: -280 } : false}
             animate={{ x: 0 }}
             exit={isMobile ? { x: -280 } : undefined}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
             className="fixed left-0 top-0 h-screen w-[280px] bg-plantation-gradient z-40 flex flex-col overflow-hidden"
           >
-            {/* Decorative elements */}
             <div className="absolute top-0 right-0 w-40 h-40 bg-plantation-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-leaf-400/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
@@ -82,15 +85,21 @@ export default function PetaniSidebar({ activePage, onNavigate }) {
                   <Leaf size={22} className="text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-white tracking-tight">SiKePang</h1>
-                  <p className="text-[10px] text-plantation-300 font-medium tracking-wider uppercase">Panel Petani</p>
+                  <h1 className="text-xl font-bold text-white tracking-tight">
+                    SiKePang
+                  </h1>
+                  <p className="text-[10px] text-plantation-300 font-medium tracking-wider uppercase">
+                    Portal Petani
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* Navigation */}
             <nav className="relative flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-              <p className="text-[10px] uppercase tracking-widest text-plantation-400 font-semibold px-4 mb-3">Menu Petani</p>
+              <p className="text-[10px] uppercase tracking-widest text-plantation-400 font-semibold px-4 mb-3">
+                Menu Saya
+              </p>
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activePage === item.id;
@@ -101,7 +110,7 @@ export default function PetaniSidebar({ activePage, onNavigate }) {
                     whileHover={{ x: 4 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleNavigate(item.id)}
-                    className={`w-full ${isActive ? 'sidebar-link-active' : 'sidebar-link'}`}
+                    className={`w-full ${isActive ? "sidebar-link-active" : "sidebar-link"}`}
                   >
                     <Icon size={20} />
                     <span>{item.label}</span>
@@ -114,15 +123,24 @@ export default function PetaniSidebar({ activePage, onNavigate }) {
             <div className="relative px-4 py-4 border-t border-white/10">
               <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/5">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-leaf-400 to-plantation-500 flex items-center justify-center text-white text-sm font-bold">
-                  {user?.nama?.charAt(0)?.toUpperCase() || 'P'}
+                  {user?.nama?.charAt(0)?.toUpperCase() || "P"}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-white truncate">{user?.nama || 'Petani'}</p>
-                  <p className="text-[11px] text-plantation-300 truncate">{user?.email || ''}</p>
-                  <p className="text-[10px] text-leaf-400 font-bold tracking-wide uppercase mt-0.5">{user?.role || ''}</p>
+                  <p className="text-sm font-semibold text-white truncate">
+                    {user?.nama || "Petani"}
+                  </p>
+                  <p className="text-[11px] text-plantation-300 truncate">
+                    {user?.email || ""}
+                  </p>
+                  <p className="text-[10px] text-leaf-400 font-bold tracking-wide uppercase mt-0.5">
+                    {user?.role || ""}
+                  </p>
                 </div>
                 <button
-                  onClick={async () => { await handleLogout(); navigate('/login', { replace: true }); }}
+                  onClick={async () => {
+                    await handleLogout();
+                    navigate("/login", { replace: true });
+                  }}
                   className="text-plantation-400 hover:text-white cursor-pointer transition-colors"
                   title="Keluar"
                 >

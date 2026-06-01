@@ -6,14 +6,20 @@
 //   - handleLogin, handleLogout
 // =============================================================
 
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import {
   login as loginService,
   logout as logoutService,
   getCurrentUser,
   isAuthenticated as checkAuth,
   getProfile,
-} from '../services/authService';
+} from "../services/authService";
 
 const AuthContext = createContext(null);
 
@@ -64,7 +70,7 @@ export function AuthProvider({ children }) {
       setError(result.message);
       return { success: false, message: result.message };
     } catch (err) {
-      const msg = 'Terjadi kesalahan. Silakan coba lagi.';
+      const msg = "Terjadi kesalahan. Silakan coba lagi.";
       setError(msg);
       return { success: false, message: msg };
     } finally {
@@ -75,6 +81,16 @@ export function AuthProvider({ children }) {
   /**
    * Handle logout – bersihkan state & redirect
    */
+  const refreshProfile = useCallback(async () => {
+    try {
+      const profile = await getProfile();
+      setUser(profile);
+      return profile;
+    } catch {
+      return null;
+    }
+  }, []);
+
   const handleLogout = useCallback(async () => {
     setLoading(true);
     await logoutService();
@@ -90,14 +106,11 @@ export function AuthProvider({ children }) {
     isAuthenticated: !!user,
     handleLogin,
     handleLogout,
+    refreshProfile,
     clearError: () => setError(null),
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 /**
@@ -108,7 +121,7 @@ export function AuthProvider({ children }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth harus digunakan di dalam <AuthProvider>');
+    throw new Error("useAuth harus digunakan di dalam <AuthProvider>");
   }
   return context;
 }

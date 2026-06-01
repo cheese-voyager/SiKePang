@@ -1,39 +1,46 @@
-import { useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 // Auth & Guards
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Layout Components
-import Sidebar from './components/Sidebar';
-import PetaniSidebar from './components/PetaniSidebar';
+import Sidebar from "./components/Sidebar";
+import PetaniSidebar from "./components/PetaniSidebar";
 
 // Pages
-import LandingPage from './pages/LandingPage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import DashboardPage from './pages/DashboardPage';
-import PenggunaPage from './pages/PenggunaPage';
-import KomoditasPage from './pages/KomoditasPage';
-import StokPage from './pages/StokPage';
-import DistribusiPage from './pages/DistribusiPage';
+import LandingPage from "./pages/LandingPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import DashboardPage from "./pages/DashboardPage";
+import PenggunaPage from "./pages/PenggunaPage";
+import KomoditasPage from "./pages/KomoditasPage";
+import StokPage from "./pages/StokPage";
+import DistribusiPage from "./pages/DistribusiPage";
 
 // Petani Pages
-import PetaniDashboardPage from './pages/PetaniDashboardPage';
-import PetaniStokPage from './pages/PetaniStokPage';
-import PetaniDistribusiPage from './pages/PetaniDistribusiPage';
+import PetaniDashboardPage from "./pages/PetaniDashboardPage";
+import PetaniProfilePage from "./pages/PetaniProfilePage";
+import PetaniStokPage from "./pages/PetaniStokPage";
+import PetaniDistribusiPage from "./pages/PetaniDistribusiPage";
 
 function DashboardLayout() {
-  const [activePage, setActivePage] = useState('dashboard');
+  const [activePage, setActivePage] = useState("dashboard");
 
   const renderPage = () => {
     switch (activePage) {
-      case 'dashboard': return <DashboardPage />;
-      case 'pengguna': return <PenggunaPage />;
-      case 'komoditas': return <KomoditasPage />;
-      case 'stok': return <StokPage />;
-      case 'distribusi': return <DistribusiPage />;
-      default: return <DashboardPage />;
+      case "dashboard":
+        return <DashboardPage />;
+      case "pengguna":
+        return <PenggunaPage />;
+      case "komoditas":
+        return <KomoditasPage />;
+      case "stok":
+        return <StokPage />;
+      case "distribusi":
+        return <DistribusiPage />;
+      default:
+        return <DashboardPage />;
     }
   };
 
@@ -46,23 +53,27 @@ function DashboardLayout() {
       </div>
       <Sidebar activePage={activePage} onNavigate={setActivePage} />
       <main className="lg:ml-[280px] min-h-screen relative">
-        <div className="p-4 md:p-6 lg:p-8 pt-16 lg:pt-8">
-          {renderPage()}
-        </div>
+        <div className="p-4 md:p-6 lg:p-8 pt-16 lg:pt-8">{renderPage()}</div>
       </main>
     </div>
   );
 }
 
 function PetaniLayout() {
-  const [activePage, setActivePage] = useState('dashboard');
+  const [activePage, setActivePage] = useState("dashboard");
 
   const renderPage = () => {
     switch (activePage) {
-      case 'dashboard': return <PetaniDashboardPage />;
-      case 'stok': return <PetaniStokPage />;
-      case 'distribusi': return <PetaniDistribusiPage />;
-      default: return <PetaniDashboardPage />;
+      case "dashboard":
+        return <PetaniDashboardPage />;
+      case "stok":
+        return <PetaniStokPage />;
+      case "distribusi":
+        return <PetaniDistribusiPage />;
+      case "profil":
+        return <PetaniProfilePage />;
+      default:
+        return <PetaniDashboardPage />;
     }
   };
 
@@ -75,9 +86,7 @@ function PetaniLayout() {
       </div>
       <PetaniSidebar activePage={activePage} onNavigate={setActivePage} />
       <main className="lg:ml-[280px] min-h-screen relative">
-        <div className="p-4 md:p-6 lg:p-8 pt-16 lg:pt-8">
-          {renderPage()}
-        </div>
+        <div className="p-4 md:p-6 lg:p-8 pt-16 lg:pt-8">{renderPage()}</div>
       </main>
     </div>
   );
@@ -96,7 +105,7 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute allowedRoles={['ADMIN', 'PETUGAS']}>
+            <ProtectedRoute allowedRoles={["ADMIN", "PETUGAS"]}>
               <DashboardLayout />
             </ProtectedRoute>
           }
@@ -106,7 +115,7 @@ function App() {
         <Route
           path="/petani"
           element={
-            <ProtectedRoute allowedRoles={['PETANI']}>
+            <ProtectedRoute allowedRoles={["PETANI"]}>
               <PetaniLayout />
             </ProtectedRoute>
           }
