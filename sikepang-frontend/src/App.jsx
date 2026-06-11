@@ -7,6 +7,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 // Layout Components
 import Sidebar from "./components/Sidebar";
 import PetaniSidebar from "./components/PetaniSidebar";
+import ChatbotWidget from "./components/ChatbotWidget";
+
 
 // Pages
 import LandingPage from "./pages/LandingPage";
@@ -55,6 +57,7 @@ function DashboardLayout() {
       <main className="lg:ml-[280px] min-h-screen relative">
         <div className="p-4 md:p-6 lg:p-8 pt-16 lg:pt-8">{renderPage()}</div>
       </main>
+      <ChatbotWidget />
     </div>
   );
 }
@@ -88,6 +91,7 @@ function PetaniLayout() {
       <main className="lg:ml-[280px] min-h-screen relative">
         <div className="p-4 md:p-6 lg:p-8 pt-16 lg:pt-8">{renderPage()}</div>
       </main>
+      <ChatbotWidget />
     </div>
   );
 }
