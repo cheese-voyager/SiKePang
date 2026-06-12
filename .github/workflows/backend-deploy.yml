@@ -35,9 +35,12 @@ jobs:
     needs: build-test-push
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to EC2 via SSH
+      - name: Deploy to Private EC2 via Bastion Host
         uses: appleboy/ssh-action@v0.1.6
         with:
+          proxy_host: ${{ secrets.EC2_FRONTEND_IP }}
+          proxy_username: ubuntu
+          proxy_key: ${{ secrets.EC2_SSH_KEY }}
           host: ${{ secrets.EC2_BACKEND_IP }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
