@@ -46,5 +46,7 @@ jobs:
             docker stop sikepang-backend || true
             docker rm sikepang-backend || true
             docker run -d -p 8081:8081 --name sikepang-backend \
-              -e SPRING_DATASOURCE_URL=jdbc:mysql://10.3.1.5:3306/Sikepang \ # Ganti dengan Private IP EC2 Database
-              ${{ secrets.DOCKER_USERNAME }}/sikepang-backend:latest
+              -e SPRING_DATASOURCE_URL=jdbc:mysql://10.3.1.56:3307/Sikepang \ # Ganti dengan Private IP EC2 Database
+                 SPRING_DATASOURCE_PASSWORD=rootpassword \
+                  -e GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
+                    ${{ secrets.DOCKER_USERNAME }}/sikepang-backend:latest
