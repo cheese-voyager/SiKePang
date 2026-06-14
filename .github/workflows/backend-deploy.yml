@@ -45,11 +45,11 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/sikepang-backend:latest
-            docker stop sikepang-backend || true
-            docker rm sikepang-backend || true
-            docker run -d -p 8081:8081 --name sikepang-backend \
-              -e SPRING_DATASOURCE_URL=jdbc:mysql://10.3.1.56:3307/Sikepang \ # Ganti dengan Private IP EC2 Database
-                 SPRING_DATASOURCE_PASSWORD=rootpassword \
-                  -e GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
-                    ${{ secrets.DOCKER_USERNAME }}/sikepang-backend:latest
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/sikepang-backend:latest
+            sudo docker stop sikepang-backend || true
+            sudo docker rm sikepang-backend || true
+            sudo docker run -d -p 8081:8081 --name sikepang-backend \
+              -e SPRING_DATASOURCE_URL="jdbc:mysql://10.3.1.56:3307/Sikepang?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Jakarta" \
+              -e SPRING_DATASOURCE_PASSWORD="rootpassword" \
+              -e GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY }}" \
+              ${{ secrets.DOCKER_USERNAME }}/sikepang-backend:latest
